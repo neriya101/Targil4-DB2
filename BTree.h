@@ -6,37 +6,37 @@ using namespace std;
 template<class T>
 class BTree : public LibraryDataStructure<T>
 {
-private:
+public:
 	class BNode
 	{
 	public:
-		int m;		//max num of records in node +1
-		T* records;
-		BNode** sons;
-		BNode* parent;
-		int numOfRecords;
-		int numOfSons;
-		BNode(int _m);
-		~BNode();
+		int m;		//max num of records in node +1.
+		T* records; //array size m.
+		BNode** sons; //array of pointers to node sons size m+1.
+		BNode* parent; // pointer to parent node.
+		int numOfRecords; //number of saved records.
+		int numOfSons; //number of node sons.
+		BNode(int _m); //ctor
+		~BNode(); //dtor
 		bool isLeaf();
 		void insert(T record);
 		void remove(T record);
-		void printKeys();
+		void printKeys(); //print the keys of the node
 	};
-	int m;
-	BNode* root;
+	int m; //rank of tree.
+	BNode* root; //pointer to root node.
 
-	void clear(BNode* current);
+	void clear(BNode* current); //delete all tree post order.
 	void inorder(BNode* current);
 	BNode* findAddNode(BNode* current, T record);
 	void split(BNode* current);
 	T* search(BNode* current, int key, int& counter);
 public:
-	BTree(int degree);
-	~BTree();
-	void inorder();
+	BTree(int degree); //ctor
+	~BTree(); //dtor
+	void inorder();//print the tree inorder.
 	void insert(T record);
-	T* search(int key);
+	T* search(int key);//search for record and print the number of visited nodes.
 
 
 };
@@ -45,25 +45,49 @@ public:
 template<class T>
 BTree<T>::BNode::BNode(int _m)
 {
-	// TODO: fix
+	this->m = _m;
+	this->records = new T[m];
+	this->sons = new BNode * [m + 1];
+	this->parent = nullptr;
+	this->numOfRecords = 0;
+	this->numOfSons = 0;
 }
 
 template<class T>
 BTree<T>::BNode::~BNode()
 {
-	// TODO: fix
+	this->m = 0;
+	this->records = nullptr;
+	this->sons = nullptr;
+	this->parent = nullptr;
+	this->numOfRecords = 0;
+	this->numOfSons = 0;
 }
 
 template<class T>
 bool BTree<T>::BNode::isLeaf()
 {
-	// TODO: fix
+	return this->numOfSons == 0;
 }
 
 template<class T>
 void BTree<T>::BNode::insert(T record)
 {
-	// TODO: fix
+	if (this->numOfRecords == 0)
+		this->records[0] = record;
+	else if (this->records[this->numOfRecords - 1] < record)
+		this->records[this->numOfRecords] = record;
+	else
+		for (auto i = 0; i < this->numOfRecords; i++)
+		{
+			if (this->records[i] > record)
+			{
+				for (auto j = this->numOfRecords - 1; j > i; j--)
+					this->records[j] = this->records[j - 1];
+				this->records[i] = record;
+			}
+		}
+	this->numOfRecords++;
 }
 
 template<class T>
