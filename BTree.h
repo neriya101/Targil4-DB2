@@ -132,7 +132,33 @@ void BTree<T>::inorder()
 template<class T>
 void BTree<T>::insert(T record)
 {
-	// TODO: fix
+	BNode temp = this->root; //will be the node where we want to insert.
+	BNode parent = nullptr; //will save the parent node for future use.
+	while (!temp.isLeaf)
+	{
+		if (record > temp.records[temp.numOfRecords - 1]) //if the record is higher than every key in the node.
+		{
+			parent = temp;
+			temp = temp.sons[temp.numOfRecords]; //the next node will be the highest node.
+		}
+		else
+		{
+			for (auto i = 0; i < temp.numOfRecords; i++) //run on the current node
+			{
+				if (record < temp.records[i]) //searching the node
+				{
+					parent = temp;
+					temp = temp.sons[i];
+					break;
+				}
+			}
+		}
+	}
+	//temp is now the leaf we want to insert into.
+	temp.insert(record);
+	temp.parent = parent;
+	if (temp.numOfRecords == this->m) //if the node is full we need to split the node.
+		this->split(temp);
 }
 
 //private recursive help fuctions
@@ -171,7 +197,34 @@ typename BTree<T>::BNode* BTree<T>::findAddNode(BNode* current, T record)
 template <class T>
 void BTree<T>::split(BNode* current)
 {
-	// TODO: fix
+	T temp = current->records[current->numOfRecords / 2 + 1]; //temp will hold the record we need to split from
+	current->remove(current->records[current->numOfRecords / 2 + 1]); //remove the record we want to split
+	current->parent.insert(temp); //insert the record to the paernt
+	for (auto i = 0; i < current->parent->numOfSons; i++)
+		if (current->parent->sons[i] == temp)
+		{
+			int removeFrom = i;
+			break;
+		}
+	for (auto i = current->parent->numOfSons; i > removeFrom + 1; i--)
+		current->parent->sons[i] = current->parent->sons[i - 1];
+	BNode* right;
+	BNode* left;
+	for (auto i = current->numOfRecords - 1; i > current->numOfRecords / 2; i--)
+		right->insert(current->records[i]);
+	for (auto i = current->numOfRecords / 2; i > 0; i--)
+		left->insert(current->records[i]);
+	if (current->numOfSons != 0)
+	{
+		int c = 0;
+		for (auto i = 0; i < (current->numOfSons + 1) / 2; i++)
+			left->sons[i] = current->sons[i];
+		for (auto i = (current->numOfSons + 1) / 2; i < current->numOfSons + 1; i++, c++)
+			right->sons[c] = current->sons[i];
+	}
+
+
+
 }
 
 
