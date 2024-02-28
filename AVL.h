@@ -234,5 +234,5 @@ typename AVL<T>::Node* AVL<T>::RL(typename AVL<T>::Node* x)
 template<class T>
 inline void AVL<T>::process(T& r)
 {
-    cout << "(" << r << ")" << endl;
+    cout << "(" << r.getKey() << ")" << endl;
 }

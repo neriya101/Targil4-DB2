@@ -89,6 +89,7 @@ void BTree<T>::BNode::insert(T record)
 			}
 		}
 	this->numOfRecords++;
+	cout << endl;
 }
 
 template<class T>
@@ -186,7 +187,8 @@ void BTree<T>::inorder(BNode* current)
 			for (int i = 0; i < current->numOfSons; i++) //go on and print in inorder style
 			{
 				inorder(current->sons[i]);
-				current->printKeys();
+				if (current->numOfSons - 1 != i)
+					current->printKeys();
 			}
 	}
 }
@@ -245,9 +247,15 @@ void BTree<T>::split(BNode* current)
 	{
 		this->root = current->parent;
 		current->parent->numOfSons = 2;
+		left->parent = this->root; //set parent to be the root
+		right->parent = this->root; //set parent to be the root
 	}
 	else
+	{
 		current->parent->numOfSons++; //if the node is not new one, we added only one son  
+		left->parent = current->parent->parent; //set parent for left
+		right->parent = current->parent->parent; //set parent for right
+	}
 	if (current->parent->numOfRecords == m) //split again to the parent if needed
 		split(current->parent);
 }
@@ -259,7 +267,7 @@ T* BTree<T>::search(BNode* current, T key, int& counter)
 {
 	counter++;
 	if (key > current->records[current->numOfRecords - 1]) //if the key is bigger than all the values
-		return (current->numOfSons) ? search(current->sons[current->numOfRecords], key, counter) : nullptr; 
+		return (current->numOfSons) ? search(current->sons[current->numOfRecords], key, counter) : nullptr;
 	//go to the most right son, and if not exits, return nullptr and the key dont exits
 	else
 		for (int i = 0; i < current->numOfRecords; i++) //go on the values
