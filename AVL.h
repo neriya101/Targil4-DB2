@@ -24,7 +24,7 @@ protected:
     void clear(Node* current);
     void inorder(Node* current);
     void insert(Node*& current, T record);
-    T* search(Node* current, int record, int& counter);
+    T* search(Node* current, T record, int& counter);
     void process(T& r);
 
 public:
@@ -36,7 +36,7 @@ public:
     void inorder();
     int height();
     void insert(T record);
-    T* search(int record);
+    T* search(T record);
 
 private:
     void balanceTree(Node*& current);
@@ -141,24 +141,24 @@ void AVL<T>::insert(T record)
 }
 
 template<class T>
-T* AVL<T>::search(Node* current, int record, int& counter)
+T* AVL<T>::search(Node* current, T record, int& counter)
 {
     if (!current)
         return nullptr;
 
     counter++;
 
-    if (current->record.getKey() == record)
+    if (current->record == record)
         return &(current->record);
 
-    if (record < current->record.getKey())
+    if (record < current->record)
         return search(current->left, record, counter);
     else
         return search(current->right, record, counter);
 }
 
 template<class T>
-T* AVL<T>::search(int record)
+T* AVL<T>::search(T record)
 {
     int counter = 0;
     T* result = search(root, record, counter);
@@ -234,5 +234,5 @@ typename AVL<T>::Node* AVL<T>::RL(typename AVL<T>::Node* x)
 template<class T>
 inline void AVL<T>::process(T& r)
 {
-    cout << "(" << r.getKey() << ")" << endl;
+    cout << "(" << r << ")" << endl;
 }
