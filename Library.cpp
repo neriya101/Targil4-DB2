@@ -24,7 +24,7 @@ bool Library::borrowBook(int catalogNumber) {
 		cout << "Error! The book " << catalogNumber << " does not exist!" << endl;
 		return false;
 	}
-	while (book[i].getKey() != catalogNumber)
+	while (book[i].getKey() != catalogNumber) //since we have a full node, we need to serach for the value in the node 
 		i++;
 	return book[i].borrowBook(catalogNumber);
 }
@@ -36,7 +36,7 @@ bool Library::returnBook(int catalogNumber) {
 		cout << "Error! The book " << catalogNumber << " does not exist!" << endl;
 		return false;
 	}
-	while (book[i].getKey() != catalogNumber)
+	while (book[i].getKey() != catalogNumber) //since we have a full node, we need to serach for the value in the node
 		i++;
 	return book[i].returnBook(catalogNumber);
 

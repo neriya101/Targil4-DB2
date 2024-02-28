@@ -89,11 +89,6 @@ void BTree<T>::BNode::insert(T record)
 			}
 		}
 	this->numOfRecords++;
-	for (int i = 0; i < this->numOfRecords; i++)
-	{
-		cout << this->records[i];
-	}
-	cout << endl;
 }
 
 template<class T>
@@ -103,7 +98,7 @@ void BTree<T>::BNode::remove(T record)
 	{
 		if (this->records[i] == record) //if the value is find
 		{
-			for (auto j = i; j > this->numOfRecords - 1; j--) //Move all values one place to the right
+			for (auto j = i; j > this->numOfRecords - 1; j--) //move all values one place to the right
 				this->records[j] = this->records[j + 1];
 			this->numOfRecords--;
 		}
@@ -140,7 +135,7 @@ void BTree<T>::insert(T record)
 {
 	BNode* temp; //will be the node where we want to insert.
 	if (!this->root)
-		this->root = new BNode(this->m);
+		this->root = new BNode(this->m); //create the root if the root is not exist
 	temp = this->root;
 	BNode* parent = nullptr; //will save the parent node for future use.
 	while (!temp->isLeaf())
@@ -163,9 +158,8 @@ void BTree<T>::insert(T record)
 			}
 		}
 	}
-	//temp is now the leaf we want to insert into.
-	temp->insert(record);
-	temp->parent = parent;
+	temp->insert(record); //temp is now the leaf we want to insert into.
+	temp->parent = parent; //set the parent for the node
 	if (temp->numOfRecords == this->m) //if the node is full we need to split the node.
 		this->split(temp);
 }
@@ -186,7 +180,7 @@ void BTree<T>::inorder(BNode* current)
 {
 	if (current)
 	{
-		if (current->numOfSons == 0)
+		if (current->numOfSons == 0) //if the have no sons, print it
 			current->printKeys();
 		else
 			for (int i = 0; i < current->numOfSons; i++) //go on and print in inorder style
@@ -215,46 +209,46 @@ void BTree<T>::split(BNode* current)
 	T temp = current->records[current->numOfRecords / 2]; //temp will hold the record we need to split from
 	current->remove(current->records[current->numOfRecords / 2]); //remove the record we want to split
 	current->parent->insert(temp); //insert the record to the paernt
-	for (auto i = 0; i < current->parent->numOfSons; i++)
-		if (current->parent->records[i] == temp)
+	for (auto i = 0; i < current->parent->numOfSons; i++) //We need to move part of the sons one pointer to the right for the new oneto have place
+		if (current->parent->records[i] == temp) //check from what number in the array we need to move
 		{
 			removeFrom = i;
 			break;
 		}
-	for (auto i = current->parent->numOfSons; i > removeFrom + 1; i--)
+	for (auto i = current->parent->numOfSons; i > removeFrom + 1; i--) //move the sons
 		current->parent->sons[i] = current->parent->sons[i - 1];
-	BNode* right = new BNode(this->m);
-	BNode* left = new BNode(this->m);
-	for (auto i = current->numOfRecords; i > current->numOfRecords / 2; i--)
+	BNode* right = new BNode(this->m); //This node will be the new node from right
+	BNode* left = new BNode(this->m); //This node will be the new node from left
+	for (auto i = current->numOfRecords; i > current->numOfRecords / 2; i--) //set the needed recrods
 		right->insert(current->records[i]);
-	for (auto i = current->numOfRecords / 2 - 1; i >= 0; i--)
+	for (auto i = current->numOfRecords / 2 - 1; i >= 0; i--) //set the needed recrods
 		left->insert(current->records[i]);
-	if (current->numOfSons != 0)
+	if (current->numOfSons != 0) //If the node that we split have sons, we need to keep them also and split them
 	{
-		if (current->numOfSons == this->m + 1) //adjusment when the number of sons is exceed
+		if (current->numOfSons == this->m + 1) //adjusment when the number of sons is exceed m
 			current->numOfSons--;
 		int c = 0;
-		for (auto i = 0; i < (current->numOfSons + 1) / 2; i++)
+		for (auto i = 0; i < (current->numOfSons + 1) / 2; i++) //set the sons to the left node
 		{
 			left->numOfSons++;
 			left->sons[i] = current->sons[i];
 		}
-		for (auto i = (current->numOfSons + 1) / 2; i < current->numOfSons + 1; i++, c++)
+		for (auto i = (current->numOfSons + 1) / 2; i < current->numOfSons + 1; i++, c++) //set the sons for the right node
 		{
 			right->numOfSons++;
 			right->sons[c] = current->sons[i];
 		}
 	}
-	current->parent->sons[removeFrom] = left;
-	current->parent->sons[removeFrom + 1] = right;
-	if (current->parent->numOfSons == 0)
+	current->parent->sons[removeFrom] = left; //connect the node to where we need
+	current->parent->sons[removeFrom + 1] = right; //connect the node to where we need
+	if (current->parent->numOfSons == 0) //if new node is created,we need to update his sons by 2, and set him to be the new root
 	{
 		this->root = current->parent;
 		current->parent->numOfSons = 2;
 	}
 	else
-		current->parent->numOfSons++;
-	if (current->parent->numOfRecords == m)
+		current->parent->numOfSons++; //if the node is not new one, we added only one son  
+	if (current->parent->numOfRecords == m) //split again to the parent if needed
 		split(current->parent);
 }
 
@@ -265,14 +259,17 @@ T* BTree<T>::search(BNode* current, T key, int& counter)
 {
 	counter++;
 	if (key > current->records[current->numOfRecords - 1]) //if the key is bigger than all the values
-		return search(current->sons[current->numOfRecords], key, counter); //go to the most right son
+		return (current->numOfSons) ? search(current->sons[current->numOfRecords], key, counter) : nullptr; 
+	//go to the most right son, and if not exits, return nullptr and the key dont exits
 	else
 		for (int i = 0; i < current->numOfRecords; i++) //go on the values
 		{
 			if (key != current->records[i]) //if the current value is not equal to the key
 			{
 				if (key < current->records[i]) //if the key smaller than the current value
-					return search(current->sons[i], key, counter); //search in the place "i" son
+					return (current->numOfSons) ? search(current->sons[i], key, counter) : nullptr;
+				//search in the place "i" son, or if have no sons, return nullptr and the key is not exits
+
 			}
 			else
 				return current->records;
@@ -283,7 +280,7 @@ T* BTree<T>::search(BNode* current, T key, int& counter)
 template<class T>
 T* BTree<T>::search(T key) {
 	int counter = 0;
-	T* searchedNode = search(this->root, key, counter);
+	T* searchedNode = search(this->root, key, counter); //Search the node
 	cout << "The search involved scanning " << counter << " nodes" << endl;
 	return searchedNode;
 }
